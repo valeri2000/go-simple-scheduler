@@ -23,19 +23,21 @@ func (job *Job) ShouldRun() bool {
 
 func (job *Job) DecreaseTime() {
 	job.TimeLeft -= 1
+	if job.TimeLeft < 1 {
+		job.PendingRun = true
+	}
 }
 
-func (job *Job) ResetTime() bool {
+func (job *Job) ResetTime() {
 	if job.RunOnce == true {
-		return false
+		job.TimeLeft = 1e18
+		job.PendingRun = false
+	} else {
+		job.TimeLeft = job.Period
+		job.PendingRun = (job.Period == 0)
 	}
-
-	job.TimeLeft = job.Period
-	job.PendingRun = (job.Period == 0)
-	return true
 }
 
 func (job *Job) Run() {
 	go job.Func()
-	go job.ResetTime()
 }
