@@ -9,7 +9,7 @@ import (
 )
 
 func printHiThere() {
-	fmt.Println("hi there |", time.Now())
+	fmt.Println("hi there |", time.Now().UnixNano()/int64(time.Millisecond))
 }
 
 func fib(n int) {
@@ -20,15 +20,15 @@ func fib(n int) {
 		a = b
 		b = c
 	}
-	fmt.Println("fib ", n, "=", b)
+	fmt.Println("fib ", n, "=", b, "|", time.Now().UnixNano()/int64(time.Millisecond))
 }
 
 func add(a int, b int) {
-	fmt.Printf("add(%d, %d) = %d | %s\n",
+	fmt.Printf("add(%d, %d) = %d | %d\n",
 		a,
 		b,
 		a+b,
-		time.Now())
+		time.Now().UnixNano()/int64(time.Millisecond))
 }
 
 func main() {
@@ -42,10 +42,15 @@ func main() {
 		fib(5)
 	}
 
-	scheduler := scheduler.CreateScheduler()
-	scheduler.AddJob(job.CreateJob(3, 3, printHiThere))
-	scheduler.AddJob(job.CreateJob(0, 1, add2plus3))
+	scheduler, err := scheduler.CreateScheduler("millisecond")
+	//scheduler, err := scheduler.CreateScheduler("second")
+	if err != nil {
+		panic("Error")
+	}
+
+	scheduler.AddJob(job.CreateJob(3, 300, printHiThere))
+	scheduler.AddJob(job.CreateJob(0, 100, add2plus3))
 	scheduler.AddJob(job.CreateJob(1, 0, fib5)) // run once
-	scheduler.AddJob(job.CreateJob(0, 2, add5plus5))
+	scheduler.AddJob(job.CreateJob(0, 200, add5plus5))
 	scheduler.Start()
 }

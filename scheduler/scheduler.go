@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -8,11 +9,19 @@ import (
 )
 
 type Scheduler struct {
-	Jobs []*job.Job
+	Precision time.Duration // time unit
+	Jobs      []*job.Job
 }
 
-func CreateScheduler() *Scheduler {
-	return &Scheduler{Jobs: make([]*job.Job, 0)}
+func CreateScheduler(precisionStr string) (*Scheduler, error) {
+	switch precisionStr {
+	case "second":
+		return &Scheduler{Precision: time.Second, Jobs: make([]*job.Job, 0)}, nil
+	case "millisecond":
+		return &Scheduler{Precision: time.Millisecond, Jobs: make([]*job.Job, 0)}, nil
+	default:
+		return nil, errors.New("Precision not supported!")
+	}
 }
 
 func (scheduler *Scheduler) AddJob(newJob *job.Job) {
@@ -20,7 +29,7 @@ func (scheduler *Scheduler) AddJob(newJob *job.Job) {
 }
 
 func (scheduler *Scheduler) Tick() {
-	time.Sleep(1 * time.Second)
+	time.Sleep(1 * scheduler.Precision)
 	for i := range scheduler.Jobs {
 		scheduler.Jobs[i].DecreaseTime()
 	}
