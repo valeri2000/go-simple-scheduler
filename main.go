@@ -42,15 +42,11 @@ func main() {
 		fib(5)
 	}
 
-	scheduler, err := scheduler.CreateScheduler("millisecond")
-	//scheduler, err := scheduler.CreateScheduler("second")
-	if err != nil {
-		panic("Error")
-	}
+	scheduler := scheduler.CreateScheduler()
 
-	scheduler.AddJob(job.CreateJob(3, 300, printHiThere))
-	scheduler.AddJob(job.CreateJob(0, 100, add2plus3))
-	scheduler.AddJob(job.CreateJob(1, 0, fib5)) // run once
-	scheduler.AddJob(job.CreateJob(0, 200, add5plus5))
+	scheduler.AddJob(job.CreateJob(3, 1*time.Second, printHiThere))
+	scheduler.AddJob(job.CreateJob(0, 100*time.Millisecond, add2plus3))
+	scheduler.AddJob(job.CreateJob(1, 0*time.Millisecond, fib5)) // run once
+	scheduler.AddJob(job.CreateJob(0, 200*time.Millisecond, add5plus5))
 	scheduler.Start()
 }

@@ -1,57 +1,37 @@
 package job
 
 import (
-	"fmt"
 	"time"
 )
 
 type Job struct {
-	TimesToRun uint // 0 -> no limit
-	Done       bool
-	Period     uint // in seconds
-	TimeLeft   uint
-	PendingRun bool
-	Func       func()
+	TimesToRun  uint  // 0 -> no limit
+	Period      int64 // in ns
+	LastRunTime int64
+	Func        func()
 }
 
-func CreateJob(TimesToRun uint, Period uint, Func func()) *Job {
+func CreateJob(TimesToRun uint, Period time.Duration, Func func()) *Job {
 	return &Job{
-		TimesToRun: TimesToRun,
-		Done:       false,
-		Period:     Period,
-		TimeLeft:   Period,
-		PendingRun: (Period == 0),
-		Func:       Func,
-	}
-}
-
-func (job *Job) ShouldRun() bool {
-	return !job.Done && job.PendingRun
-}
-
-func (job *Job) DecreaseTime() {
-	if !job.Done {
-		job.TimeLeft -= 1
-		if job.TimeLeft < 1 {
-			job.PendingRun = true
-		}
-	}
-}
-
-func (job *Job) ResetTime() {
-	if job.TimesToRun == 0 {
-		job.TimeLeft = job.Period
-		job.PendingRun = (job.Period == 0)
-	} else if job.TimesToRun == 1 {
-		job.Done = true
-	} else {
-		job.TimesToRun -= 1
-		job.TimeLeft = job.Period
-		job.PendingRun = (job.Period == 0)
+		TimesToRun:  TimesToRun,
+		Period:      int64(Period),
+		LastRunTime: time.Now().UnixNano(),
+		Func:        Func,
 	}
 }
 
 func (job *Job) Run() {
-	fmt.Println("Starting next job at", time.Now().UnixNano()/int64(time.Millisecond))
-	go job.Func()
+	for {
+		if time.Now().UnixNano()-job.LastRunTime >= job.Period {
+			go job.Func()
+			job.LastRunTime = time.Now().UnixNano()
+
+			if job.TimesToRun == 1 {
+				break
+			}
+			if job.TimesToRun > 1 {
+				job.TimesToRun -= 1
+			}
+		}
+	}
 }
