@@ -46,10 +46,8 @@ func (scheduler *Scheduler) RunPending() {
 
 func (scheduler *Scheduler) Start() {
 	fmt.Println("Start() |", time.Now())
-	func() {
-		for {
-			go scheduler.RunPending()
-			scheduler.Tick()
-		}
-	}()
+	for {
+		go scheduler.RunPending()
+		scheduler.Tick()
+	}
 }

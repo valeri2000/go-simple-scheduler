@@ -1,5 +1,10 @@
 package job
 
+import (
+	"fmt"
+	"time"
+)
+
 type Job struct {
 	TimesToRun uint // 0 -> no limit
 	Done       bool
@@ -47,5 +52,6 @@ func (job *Job) ResetTime() {
 }
 
 func (job *Job) Run() {
+	fmt.Println("Starting next job at", time.Now().UnixNano()/int64(time.Millisecond))
 	go job.Func()
 }
