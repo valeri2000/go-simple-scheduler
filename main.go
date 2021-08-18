@@ -43,9 +43,9 @@ func main() {
 	}
 
 	scheduler := scheduler.CreateScheduler()
-	scheduler.AddJob(job.CreateJob(false, 3, printHiThere))
-	scheduler.AddJob(job.CreateJob(false, 1, add2plus3))
-	scheduler.AddJob(job.CreateJob(true, 0, fib5)) // run once
-	scheduler.AddJob(job.CreateJob(false, 2, add5plus5))
+	scheduler.AddJob(job.CreateJob(3, 3, printHiThere))
+	scheduler.AddJob(job.CreateJob(0, 1, add2plus3))
+	scheduler.AddJob(job.CreateJob(1, 0, fib5)) // run once
+	scheduler.AddJob(job.CreateJob(0, 2, add5plus5))
 	scheduler.Start()
 }

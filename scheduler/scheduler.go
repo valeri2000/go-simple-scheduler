@@ -28,7 +28,7 @@ func (scheduler *Scheduler) Tick() {
 
 func (scheduler *Scheduler) RunPending() {
 	for i := range scheduler.Jobs {
-		if scheduler.Jobs[i].ShouldRun() {
+		if scheduler.Jobs[i].ShouldRun() { // TODO handle done jobs better
 			go scheduler.Jobs[i].Run()
 			go scheduler.Jobs[i].ResetTime()
 		}

@@ -1,15 +1,18 @@
 package job
 
 type Job struct {
-	RunOnce    bool
-	Period     int // in seconds
-	TimeLeft   int
+	TimesToRun uint // 0 -> no limit
+	Done       bool
+	Period     uint // in seconds
+	TimeLeft   uint
 	PendingRun bool
 	Func       func()
 }
 
-func CreateJob(RunOnce bool, Period int, Func func()) *Job {
-	return &Job{RunOnce: RunOnce,
+func CreateJob(TimesToRun uint, Period uint, Func func()) *Job {
+	return &Job{
+		TimesToRun: TimesToRun,
+		Done:       false,
 		Period:     Period,
 		TimeLeft:   Period,
 		PendingRun: (Period == 0),
@@ -18,21 +21,26 @@ func CreateJob(RunOnce bool, Period int, Func func()) *Job {
 }
 
 func (job *Job) ShouldRun() bool {
-	return job.PendingRun
+	return !job.Done && job.PendingRun
 }
 
 func (job *Job) DecreaseTime() {
-	job.TimeLeft -= 1
-	if job.TimeLeft < 1 {
-		job.PendingRun = true
+	if !job.Done {
+		job.TimeLeft -= 1
+		if job.TimeLeft < 1 {
+			job.PendingRun = true
+		}
 	}
 }
 
 func (job *Job) ResetTime() {
-	if job.RunOnce {
-		job.TimeLeft = 1e18
-		job.PendingRun = false
+	if job.TimesToRun == 0 {
+		job.TimeLeft = job.Period
+		job.PendingRun = (job.Period == 0)
+	} else if job.TimesToRun == 1 {
+		job.Done = true
 	} else {
+		job.TimesToRun -= 1
 		job.TimeLeft = job.Period
 		job.PendingRun = (job.Period == 0)
 	}
