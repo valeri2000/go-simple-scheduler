@@ -29,7 +29,7 @@ func (job *Job) DecreaseTime() {
 }
 
 func (job *Job) ResetTime() {
-	if job.RunOnce == true {
+	if job.RunOnce {
 		job.TimeLeft = 1e18
 		job.PendingRun = false
 	} else {
